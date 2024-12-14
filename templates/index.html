@@ -1,0 +1,192 @@
+<!-- templates/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Frame Extractor</title>
+    <!-- Bulma CSS for styling -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-color: #1a1a1a;
+            --text-color: #ffffff;
+            --container-bg: #2d2d2d;
+        }
+
+        .light-mode {
+            --bg-color: #ffffff;
+            --text-color: #000000;
+            --container-bg: #f5f5f5;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .main-container {
+            background-color: var(--container-bg);
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 2rem;
+            padding: 2rem;
+        }
+
+        .theme-toggle {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+        .sections-container {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .upload-section, .frames-processing {
+            flex: 1;
+        }
+
+        .video-player {
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .spinner {
+            display: none;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .sections-container {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle">
+        <i class="fas fa-sun"></i>
+    </div>
+
+    <div class="main-container">
+        <div class="sections-container">
+            <div class="upload-section">
+                <form id="upload-form">
+                    <div class="field">
+                        <div class="file has-name is-fullwidth">
+                            <label class="file-label">
+                                <input class="file-input" type="file" accept="video/*" name="video">
+                                <span class="file-cta">
+                                    <span class="file-icon">
+                                        <i class="fas fa-upload"></i>
+                                    </span>
+                                    <span class="file-label">
+                                        Choose a video...
+                                    </span>
+                                </span>
+                                <span class="file-name">
+                                    No file selected
+                                </span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <progress class="progress is-primary" value="0" max="100"></progress>
+
+                    <div class="spinner">
+                        <i class="fas fa-spinner fa-spin fa-2x"></i>
+                    </div>
+
+                    <video class="video-player" controls style="display: none;">
+                        Your browser does not support the video tag.
+                    </video>
+                </form>
+            </div>
+
+            <div class="frames-processing">
+                <form id="frames-form">
+                    <div class="field">
+                        <label class="label">Start Time (HH:MM:SS)</label>
+                        <div class="control">
+                            <input class="input" type="text" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label class="label">End Time (HH:MM:SS)</label>
+                        <div class="control">
+                            <input class="input" type="text" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <div class="control">
+                            <button class="button is-primary" type="submit">
+                                Extract Frames
+                            </button>
+                        </div>
+                    </div>
+
+                    <progress class="progress is-primary" value="0" max="100" style="display: none;"></progress>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Theme toggle functionality
+        const themeToggle = document.querySelector('.theme-toggle');
+        const body = document.body;
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('light-mode');
+            const icon = themeToggle.querySelector('i');
+            icon.classList.toggle('fa-sun');
+            icon.classList.toggle('fa-moon');
+        });
+
+        // File upload handling
+        const uploadForm = document.getElementById('upload-form');
+        const fileInput = uploadForm.querySelector('.file-input');
+        const fileName = uploadForm.querySelector('.file-name');
+        const progressBar = uploadForm.querySelector('.progress');
+        const spinner = uploadForm.querySelector('.spinner');
+        const videoPlayer = uploadForm.querySelector('.video-player');
+
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            fileName.textContent = file.name;
+
+            const formData = new FormData();
+            formData.append('video', file);
+
+            spinner.style.display = 'block';
+            progressBar.value = 0;
+
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                spinner.style.display = 'none';
+                videoPlayer.style.display = 'block';
+                videoPlayer.src = `/video/${data.uuid}/${data.filename}`;
+                progressBar.value = 100;
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                spinner.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
