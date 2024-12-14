@@ -1,7 +1,7 @@
-# app.py
 import os
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory, abort
 import uuid
+import mimetypes
 
 app = Flask(__name__)
 
@@ -35,6 +35,17 @@ def upload_video():
         'uuid': upload_uuid,
         'filename': file.filename
     })
+
+@app.route('/video/<upload_uuid>/<filename>')
+def serve_video(upload_uuid, filename):
+    video_path = os.path.join(UPLOAD_DIR, upload_uuid)
+    
+    if not os.path.exists(os.path.join(video_path, filename)):
+        abort(404)
+    
+    # Ensure proper mime type is set for video files
+    mimetype = mimetypes.guess_type(filename)[0]
+    return send_from_directory(video_path, filename, mimetype=mimetype)
 
 if __name__ == '__main__':
     app.run(debug=True)
