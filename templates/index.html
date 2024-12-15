@@ -365,23 +365,34 @@
             dateFormat: "H:i:S",
             time_24hr: true,
             enableSeconds: true,
-            defaultDate: "00:00:00",
+            defaultHour: 0,
+            defaultMinute: 0,
+            defaultSeconds: 0,
+            minuteIncrement: 1,
+            secondIncrement: 1,
+            disableMobile: true, // This prevents the mobile device from using its native timepicker
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
         });
-    
+
         const endTimePicker = flatpickr("#end-time", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i:S",
             time_24hr: true,
             enableSeconds: true,
-            defaultDate: "00:00:00",
+            defaultHour: 0,
+            defaultMinute: 0,
+            defaultSeconds: 0,
+            minuteIncrement: 1,
+            secondIncrement: 1,
+            disableMobile: true, // This prevents the mobile device from using its native timepicker
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
         });
+
     
         // Frame gallery management
         const framesGrid = document.querySelector('.frames-grid');
