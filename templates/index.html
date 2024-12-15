@@ -8,7 +8,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
     <!-- Font Awesome for icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Flatpickr for time picking -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
+        /* Previous styles remain the same */
         :root {
             --bg-color: #1a1a1a;
             --text-color: #ffffff;
@@ -113,6 +117,37 @@
             margin-bottom: 1rem;
         }
 
+        /* Flatpickr dark theme overrides */
+        .flatpickr-calendar.dark {
+            background: var(--container-bg);
+            border-color: var(--text-color);
+            color: var(--text-color);
+        }
+
+        .flatpickr-calendar.dark .flatpickr-time input {
+            color: var(--text-color);
+        }
+
+        .flatpickr-calendar.dark .flatpickr-time .numInputWrapper {
+            background: var(--container-bg);
+        }
+
+        .flatpickr-calendar.dark .flatpickr-time .numInputWrapper:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .time-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .current-time {
+            color: var(--text-color);
+            font-family: monospace;
+        }
+
         @media screen and (max-width: 768px) {
             .sections-container {
                 flex-direction: column;
@@ -169,22 +204,26 @@
             <div class="frames-processing">
                 <form id="frames-form">
                     <div class="field">
-                        <label class="label">Start Time (HH:MM:SS)</label>
+                        <label class="label">Start Time</label>
                         <div class="control">
-                            <input class="input" type="text" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                            <input class="input" type="text" id="start-time" placeholder="00:00:00" readonly>
                         </div>
                     </div>
 
                     <div class="field">
-                        <label class="label">End Time (HH:MM:SS)</label>
+                        <label class="label">End Time</label>
                         <div class="control">
-                            <input class="input" type="text" pattern="[0-9]{2}:[0-9]{2}:[0-9]{2}" placeholder="00:00:00">
+                            <input class="input" type="text" id="end-time" placeholder="00:00:00" readonly>
                         </div>
+                    </div>
+
+                    <div class="time-controls">
+                        <span class="current-time">Current Time: 00:00:00</span>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <button class="button is-primary" type="submit">
+                            <button class="button is-primary" type="submit" disabled>
                                 Extract Frames
                             </button>
                         </div>
@@ -210,6 +249,41 @@
             icon.classList.toggle('fa-moon');
         });
 
+        // Time formatting helper
+        function formatTime(seconds) {
+            const pad = (num) => String(num).padStart(2, '0');
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
+        }
+
+        // Initialize time pickers
+        const startTimePicker = flatpickr("#start-time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i:S",
+            time_24hr: true,
+            defaultDate: "00:00:00",
+            enableSeconds: true, // Add this line
+            onChange: function(selectedDates, dateStr) {
+                validateTimes();
+            }
+        });
+
+        const endTimePicker = flatpickr("#end-time", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i:S",
+            time_24hr: true,
+            defaultDate: "00:00:00",
+            enableSeconds: true, // Add this line
+            onChange: function(selectedDates, dateStr) {
+                validateTimes();
+            }
+        });
+
+
         // File upload handling
         const uploadForm = document.getElementById('upload-form');
         const fileInput = uploadForm.querySelector('.file-input');
@@ -217,6 +291,33 @@
         const progressBar = uploadForm.querySelector('.progress');
         const spinner = uploadForm.querySelector('.spinner');
         const videoPlayer = uploadForm.querySelector('.video-player');
+        const currentTimeDisplay = document.querySelector('.current-time');
+        const extractButton = document.querySelector('#frames-form button');
+
+        function validateTimes() {
+            const startTime = startTimePicker.selectedDates[0];
+            const endTime = endTimePicker.selectedDates[0];
+            const videoLength = videoPlayer.duration;
+
+            if (startTime && endTime && videoLength) {
+                const startSeconds = startTime.getHours() * 3600 + startTime.getMinutes() * 60 + startTime.getSeconds();
+                const endSeconds = endTime.getHours() * 3600 + endTime.getMinutes() * 60 + endTime.getSeconds();
+
+                extractButton.disabled = startSeconds >= endSeconds || endSeconds > videoLength;
+            }
+        }
+
+        videoPlayer.addEventListener('loadedmetadata', function() {
+            const duration = videoPlayer.duration;
+            const durationStr = formatTime(duration);
+            endTimePicker.setDate(durationStr);
+            startTimePicker.setDate("00:00:00");
+            extractButton.disabled = false;
+        });
+
+        videoPlayer.addEventListener('timeupdate', function() {
+            currentTimeDisplay.textContent = `Current Time: ${formatTime(videoPlayer.currentTime)}`;
+        });
 
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
@@ -243,6 +344,12 @@
                 console.error('Error:', error);
                 spinner.style.display = 'none';
             });
+        });
+
+        // Prevent form submission
+        document.getElementById('frames-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            // Handle frame extraction here
         });
     </script>
 </body>
