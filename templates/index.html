@@ -265,7 +265,7 @@
             dateFormat: "H:i:S",
             time_24hr: true,
             defaultDate: "00:00:00",
-            enableSeconds: true, // Add this line
+            enableSeconds: true,
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
@@ -277,7 +277,7 @@
             dateFormat: "H:i:S",
             time_24hr: true,
             defaultDate: "00:00:00",
-            enableSeconds: true, // Add this line
+            enableSeconds: true,
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
@@ -351,6 +351,57 @@
             e.preventDefault();
             // Handle frame extraction here
         });
+
+        // Frame extraction handling
+        const framesForm = document.getElementById('frames-form');
+        const extractProgress = framesForm.querySelector('.progress');
+        let progressInterval = null;
+
+        function startProgressPolling(uploadUuid) {
+            extractProgress.style.display = 'block';
+            progressInterval = setInterval(() => {
+                fetch(`/${uploadUuid}/progress`)
+                    .then(response => response.json())
+                    .then(data => {
+                        extractProgress.value = data.progress;
+                        if (data.progress === 100) {
+                            clearInterval(progressInterval);
+                            // Trigger frames download
+                            window.location.href = `/${uploadUuid}/frames`;
+                        }
+                    });
+            }, 1000);
+        }
+
+        framesForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const videoSrc = videoPlayer.src;
+            // Extract UUID using regex to get the UUID part only
+            const uploadUuid = videoSrc.match(/\/video\/([^/]+)/)[1];
+            
+            fetch('/extract-frames', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    upload_uuid: uploadUuid,
+                    start_time: startTimePicker.input.value,
+                    end_time: endTimePicker.input.value
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'started') {
+                    startProgressPolling(uploadUuid);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        });
+
     </script>
 </body>
 </html>
