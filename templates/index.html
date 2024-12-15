@@ -23,6 +23,11 @@
             --header-bg: #f4f1ea;
         }
 
+        html {
+            background-color: var(--bg-color);
+            transition: background-color 0.3s ease;
+        }
+
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -195,9 +200,11 @@
         // Theme toggle functionality
         const themeToggle = document.querySelector('.theme-toggle');
         const body = document.body;
+        const html = document.documentElement;
 
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('light-mode');
+            html.classList.toggle('light-mode');
             const icon = themeToggle.querySelector('i');
             icon.classList.toggle('fa-sun');
             icon.classList.toggle('fa-moon');
