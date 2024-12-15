@@ -12,26 +12,25 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <style>
-        /* Previous styles remain the same */
         :root {
             --bg-color: #1a1a1a;
             --text-color: #ffffff;
             --container-bg: #2d2d2d;
             --header-bg: #2d2d2d;
         }
-
+    
         .light-mode {
             --bg-color: #f4f1ea;
             --text-color: #333333;
             --container-bg: #ffffff;
             --header-bg: #f4f1ea;
         }
-
+    
         html {
             background-color: var(--bg-color);
             transition: background-color 0.3s ease;
         }
-
+    
         body {
             background-color: var(--bg-color);
             color: var(--text-color);
@@ -40,7 +39,7 @@
             padding: 0;
             min-height: 100vh;
         }
-
+    
         .header {
             background-color: var(--header-bg);
             padding: 1rem;
@@ -55,14 +54,14 @@
             align-items: center;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
+    
         .theme-toggle {
             cursor: pointer;
             font-size: 1.5rem;
             color: var(--text-color);
             margin-right: 2rem;
         }
-
+    
         .main-container {
             background-color: var(--container-bg);
             border-radius: 15px;
@@ -71,19 +70,19 @@
             padding: 2rem;
             min-height: calc(100vh - 100px);
         }
-
+    
         .sections-container {
             display: flex;
             gap: 2rem;
             height: 100%;
         }
-
+    
         .upload-section, .frames-processing {
             flex: 1;
             display: flex;
             flex-direction: column;
         }
-
+    
         .video-player {
             width: 100%;
             margin-top: 1rem;
@@ -92,72 +91,159 @@
             background-color: rgba(0, 0, 0, 0.1);
             border-radius: 8px;
         }
-
+    
         .spinner {
             display: none;
             text-align: center;
             margin: 1rem 0;
         }
-
+    
         .input, .file-cta, .file-name, .button {
             background-color: var(--container-bg);
             border-color: var(--text-color);
             color: var(--text-color);
         }
-
+    
         .label {
             color: var(--text-color);
         }
-
+    
         .progress {
             margin-top: 1rem;
         }
-
+    
         .file {
             margin-bottom: 1rem;
         }
-
+    
+        /* Frames Gallery Styles */
+        .frames-gallery {
+            margin-top: 2rem;
+            width: 100%;
+        }
+    
+        .frames-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 1rem;
+            padding: 1rem;
+        }
+    
+        .frame-item {
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s;
+            aspect-ratio: 16/9;
+        }
+    
+        .frame-item:hover {
+            transform: scale(1.05);
+        }
+    
+        .frame-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 4px;
+        }
+    
+        .frame-number {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.8rem;
+        }
+    
+        /* Modal Styles */
+        .frame-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+    
+        .modal-content {
+            position: relative;
+            max-width: 90%;
+            max-height: 90vh;
+        }
+    
+        .modal-content img {
+            max-width: 100%;
+            max-height: 90vh;
+            object-fit: contain;
+        }
+    
+        .close-modal {
+            position: absolute;
+            top: -30px;
+            right: -30px;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 10px;
+        }
+    
+        .close-modal:hover {
+            color: #ddd;
+        }
+    
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .sections-container {
+                flex-direction: column;
+            }
+    
+            .main-container {
+                margin: 80px 1rem 1rem 1rem;
+            }
+    
+            .frames-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            .frames-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    
+        @media screen and (min-width: 1025px) {
+            .frames-grid {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+    
         /* Flatpickr dark theme overrides */
         .flatpickr-calendar.dark {
             background: var(--container-bg);
             border-color: var(--text-color);
             color: var(--text-color);
         }
-
+    
         .flatpickr-calendar.dark .flatpickr-time input {
             color: var(--text-color);
         }
-
+    
         .flatpickr-calendar.dark .flatpickr-time .numInputWrapper {
             background: var(--container-bg);
         }
-
+    
         .flatpickr-calendar.dark .flatpickr-time .numInputWrapper:hover {
             background: rgba(255, 255, 255, 0.1);
         }
-
-        .time-controls {
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-
-        .current-time {
-            color: var(--text-color);
-            font-family: monospace;
-        }
-
-        @media screen and (max-width: 768px) {
-            .sections-container {
-                flex-direction: column;
-            }
-
-            .main-container {
-                margin: 80px 1rem 1rem 1rem;
-            }
-        }
-    </style>
+    </style>    
 </head>
 <body>
     <div class="header">
@@ -230,17 +316,31 @@
                     </div>
 
                     <progress class="progress is-primary" value="0" max="100" style="display: none;"></progress>
+
+                    <div class="frames-gallery">
+                        <div class="frames-grid"></div>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 
+    <!-- Modal for frame preview -->
+    <div class="frame-modal">
+        <div class="modal-content">
+            <span class="close-modal">
+                <i class="fas fa-times"></i>
+            </span>
+            <img src="" alt="Frame Preview">
+        </div>
+    </div>
+    
     <script>
         // Theme toggle functionality
         const themeToggle = document.querySelector('.theme-toggle');
         const body = document.body;
         const html = document.documentElement;
-
+    
         themeToggle.addEventListener('click', () => {
             body.classList.toggle('light-mode');
             html.classList.toggle('light-mode');
@@ -248,7 +348,7 @@
             icon.classList.toggle('fa-sun');
             icon.classList.toggle('fa-moon');
         });
-
+    
         // Time formatting helper
         function formatTime(seconds) {
             const pad = (num) => String(num).padStart(2, '0');
@@ -257,33 +357,111 @@
             const secs = Math.floor(seconds % 60);
             return `${pad(hours)}:${pad(minutes)}:${pad(secs)}`;
         }
-
+    
         // Initialize time pickers
         const startTimePicker = flatpickr("#start-time", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i:S",
             time_24hr: true,
-            defaultDate: "00:00:00",
             enableSeconds: true,
+            defaultDate: "00:00:00",
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
         });
-
+    
         const endTimePicker = flatpickr("#end-time", {
             enableTime: true,
             noCalendar: true,
             dateFormat: "H:i:S",
             time_24hr: true,
-            defaultDate: "00:00:00",
             enableSeconds: true,
+            defaultDate: "00:00:00",
             onChange: function(selectedDates, dateStr) {
                 validateTimes();
             }
         });
-
-
+    
+        // Frame gallery management
+        const framesGrid = document.querySelector('.frames-grid');
+        const modal = document.querySelector('.frame-modal');
+        const modalImg = modal.querySelector('img');
+        const closeModal = modal.querySelector('.close-modal');
+        let currentUploadUuid = null;
+        let desiredFrames = [];
+        let addedFrames = [];
+    
+        function calculateDesiredFrames(totalFrames) {
+            const maxFrames = 20;
+            if (totalFrames <= maxFrames) {
+                return Array.from({length: totalFrames}, (_, i) => i + 1);
+            }
+    
+            const frames = [1];  // Always include first frame
+            const step = (totalFrames - 2) / (maxFrames - 2);
+            
+            for (let i = 1; i < maxFrames - 1; i++) {
+                frames.push(Math.round(1 + i * step));
+            }
+            
+            frames.push(totalFrames);  // Always include last frame
+            return frames;
+        }
+    
+        function createFrameElement(uploadUuid, frameNumber, totalFrames) {
+            const frameDiv = document.createElement('div');
+            frameDiv.className = 'frame-item';
+            
+            const img = document.createElement('img');
+            img.src = `/video/${uploadUuid}/frame/${frameNumber}`;
+            img.alt = `Frame ${frameNumber}`;
+            
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'frame-number';
+            numberSpan.textContent = `${frameNumber}/${totalFrames}`;
+            
+            frameDiv.appendChild(img);
+            frameDiv.appendChild(numberSpan);
+            
+            frameDiv.addEventListener('click', () => {
+                modalImg.src = img.src;
+                modal.style.display = 'flex';
+            });
+            
+            return frameDiv;
+        }
+    
+        // Modal handling
+        closeModal.addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+    
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+    
+        // Clean up function
+        function cleanupState() {
+            const extractProgress = document.querySelector('#frames-form .progress');
+            const uploadProgress = document.querySelector('#upload-form .progress');
+            
+            extractProgress.style.display = 'none';
+            extractProgress.value = 0;
+            uploadProgress.value = 0;
+            
+            framesGrid.innerHTML = '';
+            addedFrames = [];
+            desiredFrames = [];
+            
+            if (progressInterval) {
+                clearInterval(progressInterval);
+                progressInterval = null;
+            }
+        }
+    
         // File upload handling
         const uploadForm = document.getElementById('upload-form');
         const fileInput = uploadForm.querySelector('.file-input');
@@ -293,20 +471,20 @@
         const videoPlayer = uploadForm.querySelector('.video-player');
         const currentTimeDisplay = document.querySelector('.current-time');
         const extractButton = document.querySelector('#frames-form button');
-
+    
         function validateTimes() {
             const startTime = startTimePicker.selectedDates[0];
             const endTime = endTimePicker.selectedDates[0];
             const videoLength = videoPlayer.duration;
-
+    
             if (startTime && endTime && videoLength) {
                 const startSeconds = startTime.getHours() * 3600 + startTime.getMinutes() * 60 + startTime.getSeconds();
                 const endSeconds = endTime.getHours() * 3600 + endTime.getMinutes() * 60 + endTime.getSeconds();
-
+    
                 extractButton.disabled = startSeconds >= endSeconds || endSeconds > videoLength;
             }
         }
-
+    
         videoPlayer.addEventListener('loadedmetadata', function() {
             const duration = videoPlayer.duration;
             const durationStr = formatTime(duration);
@@ -314,27 +492,66 @@
             startTimePicker.setDate("00:00:00");
             extractButton.disabled = false;
         });
-
+    
         videoPlayer.addEventListener('timeupdate', function() {
             currentTimeDisplay.textContent = `Current Time: ${formatTime(videoPlayer.currentTime)}`;
         });
-
+    
+        // Frame extraction handling
+        const framesForm = document.getElementById('frames-form');
+        const extractProgress = framesForm.querySelector('.progress');
+        let progressInterval = null;
+    
+        function startProgressPolling(uploadUuid) {
+            extractProgress.style.display = 'block';
+            progressInterval = setInterval(() => {
+                fetch(`/${uploadUuid}/progress`)
+                    .then(response => response.json())
+                    .then(data => {
+                        extractProgress.value = data.progress;
+                        
+                        // Update frames gallery
+                        if (!desiredFrames.length && data.total_frames) {
+                            desiredFrames = calculateDesiredFrames(data.total_frames);
+                        }
+                        
+                        // Check for new frames to add
+                        for (const frameNum of data.available_frames) {
+                            if (desiredFrames.includes(frameNum) && !addedFrames.includes(frameNum)) {
+                                const frameElement = createFrameElement(uploadUuid, frameNum, data.total_frames);
+                                framesGrid.appendChild(frameElement);
+                                addedFrames.push(frameNum);
+                            }
+                        }
+                        
+                        if (data.progress === 100) {
+                            clearInterval(progressInterval);
+                            // Trigger frames download
+                            window.location.href = `/${uploadUuid}/frames`;
+                        }
+                    });
+            }, 1000);
+        }
+    
         fileInput.addEventListener('change', (e) => {
+            cleanupState();
+            
             const file = e.target.files[0];
             fileName.textContent = file.name;
-
+    
             const formData = new FormData();
             formData.append('video', file);
-
+    
             spinner.style.display = 'block';
             progressBar.value = 0;
-
+    
             fetch('/upload', {
                 method: 'POST',
                 body: formData
             })
             .then(response => response.json())
             .then(data => {
+                currentUploadUuid = data.uuid;
                 spinner.style.display = 'none';
                 videoPlayer.style.display = 'block';
                 videoPlayer.src = `/video/${data.uuid}/${data.filename}`;
@@ -345,40 +562,14 @@
                 spinner.style.display = 'none';
             });
         });
-
-        // Prevent form submission
-        document.getElementById('frames-form').addEventListener('submit', (e) => {
-            e.preventDefault();
-            // Handle frame extraction here
-        });
-
-        // Frame extraction handling
-        const framesForm = document.getElementById('frames-form');
-        const extractProgress = framesForm.querySelector('.progress');
-        let progressInterval = null;
-
-        function startProgressPolling(uploadUuid) {
-            extractProgress.style.display = 'block';
-            progressInterval = setInterval(() => {
-                fetch(`/${uploadUuid}/progress`)
-                    .then(response => response.json())
-                    .then(data => {
-                        extractProgress.value = data.progress;
-                        if (data.progress === 100) {
-                            clearInterval(progressInterval);
-                            // Trigger frames download
-                            window.location.href = `/${uploadUuid}/frames`;
-                        }
-                    });
-            }, 1000);
-        }
-
+    
         framesForm.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            const videoSrc = videoPlayer.src;
-            // Extract UUID using regex to get the UUID part only
-            const uploadUuid = videoSrc.match(/\/video\/([^/]+)/)[1];
+            if (!currentUploadUuid) {
+                console.error('No video uploaded');
+                return;
+            }
             
             fetch('/extract-frames', {
                 method: 'POST',
@@ -386,7 +577,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    upload_uuid: uploadUuid,
+                    upload_uuid: currentUploadUuid,
                     start_time: startTimePicker.input.value,
                     end_time: endTimePicker.input.value
                 })
@@ -394,14 +585,14 @@
             .then(response => response.json())
             .then(data => {
                 if (data.status === 'started') {
-                    startProgressPolling(uploadUuid);
+                    startProgressPolling(currentUploadUuid);
                 }
             })
             .catch(error => {
                 console.error('Error:', error);
             });
         });
-
     </script>
+    
 </body>
 </html>
