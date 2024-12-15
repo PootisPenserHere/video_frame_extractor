@@ -9,6 +9,7 @@ from datetime import datetime
 import zipfile
 from io import BytesIO
 import glob
+import shutil
 
 app = Flask(__name__)
 
@@ -21,7 +22,13 @@ extraction_progress = {}
 
 def extract_frames(upload_uuid, start_time, end_time, video_path):
     frames_dir = os.path.join(os.path.dirname(video_path), 'frames')
-    os.makedirs(frames_dir, exist_ok=True)
+    
+    # Clear existing frames directory if it exists
+    if os.path.exists(frames_dir):
+        shutil.rmtree(frames_dir)
+    
+    # Create fresh empty directory
+    os.makedirs(frames_dir)
     
     # Calculate total seconds
     start_seconds = sum(x * int(t) for x, t in zip([3600, 60, 1], start_time.split(':')))
