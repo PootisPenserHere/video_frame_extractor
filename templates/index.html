@@ -334,7 +334,7 @@
             <img src="" alt="Frame Preview">
         </div>
     </div>
-    
+
     <script>
         // Theme toggle functionality
         const themeToggle = document.querySelector('.theme-toggle');
@@ -391,6 +391,7 @@
         let currentUploadUuid = null;
         let desiredFrames = [];
         let addedFrames = [];
+        let progressInterval = null;
     
         function calculateDesiredFrames(totalFrames) {
             const maxFrames = 20;
@@ -443,23 +444,31 @@
             }
         });
     
-        // Clean up function
-        function cleanupState() {
-            const extractProgress = document.querySelector('#frames-form .progress');
-            const uploadProgress = document.querySelector('#upload-form .progress');
-            
-            extractProgress.style.display = 'none';
-            extractProgress.value = 0;
-            uploadProgress.value = 0;
-            
+        // Cleanup functions
+        function cleanupFrames() {
             framesGrid.innerHTML = '';
             addedFrames = [];
             desiredFrames = [];
+            
+            const extractProgress = document.querySelector('#frames-form .progress');
+            extractProgress.style.display = 'none';
+            extractProgress.value = 0;
             
             if (progressInterval) {
                 clearInterval(progressInterval);
                 progressInterval = null;
             }
+        }
+    
+        function cleanupState() {
+            cleanupFrames();
+            
+            const uploadProgress = document.querySelector('#upload-form .progress');
+            uploadProgress.value = 0;
+            currentUploadUuid = null;
+            
+            startTimePicker.setDate("00:00:00");
+            endTimePicker.setDate("00:00:00");
         }
     
         // File upload handling
@@ -500,7 +509,6 @@
         // Frame extraction handling
         const framesForm = document.getElementById('frames-form');
         const extractProgress = framesForm.querySelector('.progress');
-        let progressInterval = null;
     
         function startProgressPolling(uploadUuid) {
             extractProgress.style.display = 'block';
@@ -526,6 +534,7 @@
                         
                         if (data.progress === 100) {
                             clearInterval(progressInterval);
+                            progressInterval = null;
                             // Trigger frames download
                             window.location.href = `/${uploadUuid}/frames`;
                         }
@@ -570,6 +579,9 @@
                 console.error('No video uploaded');
                 return;
             }
+    
+            // Clean up previous frames before starting new extraction
+            cleanupFrames();
             
             fetch('/extract-frames', {
                 method: 'POST',
@@ -593,6 +605,7 @@
             });
         });
     </script>
+    
     
 </body>
 </html>
